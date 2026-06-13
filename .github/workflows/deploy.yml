@@ -1,0 +1,42 @@
+name: CI CD Container Pipeline
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  # PHASE 1: INTEGRATION (CI)
+  integration-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-level: '3.11'
+
+      - name: Run Integration Tests
+        run: python test_app.py
+
+  # PHASE 2: DEPLOYMENT (CD)
+  deploy-to-rhel:
+    needs: integration-tests
+    runs-on: self-hosted
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      # This runs directly on your RHEL VM via the runner agent
+       scrimmage-deploy:
+        run: |
+          echo "Stopping old containers..."
+          sudo docker stop my-python-app || true
+          sudo docker rm my-python-app || true
+          
+          echo "Building new local Docker image..."
+          sudo docker build -t simple-python-app:latest .
+          
+          echo "Launching updated application..."
+          sudo docker run -d --name my-python-app -p 8080:8080 simple-python-app:latest

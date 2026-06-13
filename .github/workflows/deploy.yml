@@ -19,14 +19,14 @@ jobs:
       - name: Deploy App
         run: |
           echo "Stopping old containers..."
-          sudo docker stop my-python-app || true
-          sudo docker rm my-python-app || true
+          docker stop my-python-app || true
+          docker rm my-python-app || true
 
           echo "Building image..."
-          sudo docker build -t simple-python-app:latest .
+          docker build -t simple-python-app:latest .
 
           echo "Starting container..."
-          sudo docker run -d \
+          docker run -d \
             --name my-python-app \
             -p 8080:8080 \
             simple-python-app:latest

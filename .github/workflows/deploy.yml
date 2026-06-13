@@ -1,18 +1,33 @@
-deploy-to-rhel:
-  needs: integration-tests
-  runs-on: self-hosted
-  steps:
-    - name: Checkout Code
-      uses: actions/checkout@v4
+name: deploy-to-rhel
 
-    - name: Scrimmage Deploy
-      run: |
-        echo "Stopping old containers..."
-        sudo docker stop my-python-app || true
-        sudo docker rm my-python-app || true
-        
-        echo "Building new local Docker image..."
-        sudo docker build -t simple-python-app:latest .
-        
-        echo "Launching updated application..."
-        sudo docker run -d --name my-python-app -p 8080:8080 simple-python-app:latest
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on:
+      - self-hosted
+      - linux
+      - x64
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Deploy App
+        run: |
+          echo "Stopping old containers..."
+          sudo docker stop my-python-app || true
+          sudo docker rm my-python-app || true
+
+          echo "Building image..."
+          sudo docker build -t simple-python-app:latest .
+
+          echo "Starting container..."
+          sudo docker run -d \
+            --name my-python-app \
+            -p 8080:8080 \
+            simple-python-app:latest
+

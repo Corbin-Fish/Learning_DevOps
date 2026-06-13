@@ -11,3 +11,5 @@ if __name__ == '__main__':
     server = HTTPServer(('0.0.0.0', 8080), SimpleHandler)
     print("Server starting on port 8080...")
     server.serve_forever()
+
+    # adding a comment here for testing

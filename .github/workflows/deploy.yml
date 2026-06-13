@@ -25,8 +25,8 @@ jobs:
     needs: integration-tests
     runs-on: self-hosted
     steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
+    - name: Checkout Code
+      uses: actions/checkout@v4
 
       # This runs directly on your RHEL VM via the runner agent
        scrimmage-deploy:

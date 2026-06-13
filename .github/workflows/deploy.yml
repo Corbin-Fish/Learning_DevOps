@@ -1,4 +1,4 @@
-deploy-to-rhel:
+name: deploy-to-rhel
   needs: integration-tests
   runs-on: self-hosted
   steps:

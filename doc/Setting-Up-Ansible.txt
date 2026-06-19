@@ -1,0 +1,30 @@
+Setting up Ansible and OCI
+
+I created an Oracle account and tenancy, this process wasnt too hard just took some attempts to make my account accept my cc, once I had my free tier OCI account I tried to spin up and instance, 
+
+My Mistake: you should just make the VCN ahead of time and make sure your necessary ports are open like ssh
+
+once the instance was running i made sure it had an internet gateway attached so i could ssh too it (note i created a key pair for this during provisioning and saved my instance as a stack for when i start using terraform later)
+
+I then installed ansible on my runner and found out some permissions issue which i fixed with below commands
+
+sudo chown github /etc/ansible/ansible.cfg
+sudo chmod 644 /etc/ansible/ansible.cfg
+
+I then wrote in the ansible.cfg based off some others i found on github and with the ansible docs (which are very expansive and a lot to read)
+I also made a hidden directory to store other information like my hosts
+
+once all the config was done i started writing my playbook which was a pain, the basic OCI image substitutes docker for podman and i was missing a module 
+
+command:
+ansible-galaxy collection install community.docker
+
+In my runbook i specifically defined removing podman and adding a docker ce repo to use specifically docker
+
+as a general mistake YAML not letting you use tabs is a warcrime
+
+i confirmed my app was runnning on the OCI instance using :
+
+curl http://localhost:8080
+
+ran from the oci instance itself

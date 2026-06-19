@@ -1,0 +1,44 @@
+---
+- name: Configure OCI Instance
+  hosts: oci_instances
+  gather_facts: true
+
+  vars:
+    repo_url: "https://github.com/Corbin-Fish/Learning_DevOps"
+    repo_branch: "main"
+    project_dest: "/opt/my_py_app"
+    container_name: "py_app"
+    app_port_host: "8080"
+    app_port_container: "5000"
+
+  tasks:
+    - name: Verify connection and gather baseline info
+      ansible.builtin.ping:
+
+    - name: Update all system packages
+      ansible.builtin.dnf:
+        name: "*"
+        state: latest
+
+    - name: Install git and docker packages
+      ansible.builtin.dnf:
+        name:
+          - git
+          - docker
+        state: present
+        
+    - name: Pull from main
+      ansible.builtin.git:
+        repo: "{{ repo_url }}"
+        dest: "{{ project_dest }}"
+        version "{{ repo_branch }}"
+        force: true 
+      register: git_repo
+        
+    - name: Build Docker image if code changed
+      community.docker.docker_image:
+        name: "my_python_app:latest"
+        build:  
+          path: "{{ project_dest }}"
+          pull: true
+                                         

@@ -1,0 +1,57 @@
+Setting up the RHEL Self-Hosted Runner
+
+Spun up a RHEL VM using QEMU and virt-manager on my host machine. Registered it with Red Hat, updated the OS, and grabbed some core tools.
+
+Commands:
+sudo dnf update -y
+sudo dnf install -y curl tar wget git
+
+My Mistake: Turn on SSH right here. Do not suffer through the virt-manager console trying to type out those massive GitHub runner tokens by hand like I did. Get SSH up so you can just copy and paste.
+
+Commands:
+sudo systemctl enable --now sshd
+sudo firewall-cmd --permanent --add-service=ssh
+sudo firewall-cmd --reload
+
+Created a dedicated user named "github" to run the runner.
+
+Commands:
+sudo useradd -m github
+sudo passwd github passwordhere
+sudo usermod -aG wheel github
+
+Note: I used the github account for the rest of the setup. It caused some permission issues later, but running it as a non-root user is still the right thing to do so the pipeline doesn't have total root access to the machine.
+
+Added the Docker repo and installed it alongside Python to give the pipeline a realistic use case.
+
+Commands:
+sudo dnf config-manager --add-repo https://download.docker.com/linux/rhel/docker-ce.repo
+sudo dnf install -y docker-ce docker-ce-cli containerd.io
+sudo systemctl enable --now docker
+
+Set up the repo, made it public, and followed the GitHub instructions under Settings > Actions > Runners to download and register it.
+
+My Mistake: I originally tried to launch the runner service straight out of the github user's home directory. SELinux absolutely hated this and blocked the service from running binaries inside a user home path.
+
+The Fix: Move the runner files over to /opt and fix the permissions.
+
+Commands:
+sudo cp -r ~/github/actions-runner /opt/
+sudo chown -R github:github /opt/actions-runner
+
+Because the files moved, I had to edit the systemd service.
+
+Command:
+sudo systemctl edit
+
+Service Editing Trick: When you edit the service file to change variables like ExecStart or WorkingDirectory, you have to put a totally blank version of the variable first to clear it out before you write the new path. If you don't leave it blank first, it breaks or tries to append them.
+
+Example of what to put in the edit screen:
+
+[Service]
+WorkingDirectory=
+WorkingDirectory=/opt/actions-runner
+ExecStart=
+ExecStart=/opt/actions-runner/runsvc.sh
+
+After that, restarted the service and everything finally worked as intended.

@@ -1,4 +1,3 @@
----
 - name: Configure OCI Instance
   hosts: oci_instances
   gather_facts: true
@@ -9,7 +8,7 @@
     project_dest: "/opt/my_py_app"
     container_name: "py_app"
     app_port_host: "8080"
-    app_port_container: "5000"
+    app_port_container: "8080"
 
   tasks:
     - name: Verify connection and gather baseline info
@@ -20,25 +19,56 @@
         name: "*"
         state: latest
 
-    - name: Install git and docker packages
+    - name: Remove Podman and conflicting emulation packages
+      ansible.builtin.dnf:
+        name:
+          - podman
+          - buildah
+          - docker
+        state: absent
+
+    - name: Add official Docker CE repository
+      ansible.builtin.get_url:
+        url: https://download.docker.com/linux/centos/docker-ce.repo
+        dest: /etc/yum.repos.d/docker-ce.repo
+        mode: '0644'
+
+    - name: Install authentic Docker CE packages
       ansible.builtin.dnf:
         name:
           - git
-          - docker
+          - docker-ce
+          - docker-ce-cli
+          - containerd.io
         state: present
-        
+
+    - name: Start and enable Docker daemon service
+      ansible.builtin.systemd:
+        name: docker
+        state: started
+        enabled: true
+
     - name: Pull from main
       ansible.builtin.git:
         repo: "{{ repo_url }}"
         dest: "{{ project_dest }}"
-        version "{{ repo_branch }}"
-        force: true 
+        version: "{{ repo_branch }}"
+        force: true
       register: git_repo
-        
-    - name: Build Docker image if code changed
+
+    - name: Build Docker image
       community.docker.docker_image:
         name: "my_python_app:latest"
-        build:  
+        build:
           path: "{{ project_dest }}"
           pull: true
-                                         
+        source: build
+
+    - name: Ensure Python app container is running
+      community.docker.docker_container:
+        name: "{{ container_name }}"
+        image: "my_python_app:latest"
+        state: started
+        restart_policy: always
+        ports:
+          - "{{ app_port_host }}:{{ app_port_container }}"

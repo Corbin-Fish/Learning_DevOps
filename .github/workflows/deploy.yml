@@ -23,7 +23,7 @@ jobs:
           docker rm my-python-app || true
 
           echo "Building image..."
-          docker build -t simple-python-app:latest -f docker/Dockerfile.
+          docker build -t simple-python-app:latest -f docker/Dockerfile ./
 
           echo "Starting container..."
           docker run -d \

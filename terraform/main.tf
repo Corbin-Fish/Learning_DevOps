@@ -96,7 +96,7 @@ resource "oci_core_instance" "generated_oci_core_instance" {
 		subnet_id = var.subnet_id
 	}
 
-	display_name = "instance-20260614-1250"
+	display_name = "oci_server"
 	instance_options {
 		are_legacy_imds_endpoints_disabled = "true"
 	}
@@ -104,7 +104,7 @@ resource "oci_core_instance" "generated_oci_core_instance" {
   is_pv_encryption_in_transit_enabled = "true"
 
 	metadata = {
-    "ssh_authorized_keys" = file("/home/github/.ssh/id_ed25519.pub")
+    "ssh_authorized_keys" = file("/home/github/.ssh/oci_instance_key.pub")
     "user_data"           = "IyF1c3IvYmluL2VudiBiYXNoCgojVXBkYXRlIEltYWdlIC0gQ2hlY2sgUHl0aG9uCiNWZXJpZnkgU1NIIENvbmZpZwoKZG5mIGNoZWNrLXVwZGF0ZQoKaWYgISBjb21tYW5kIC12IHB5dGhvbjMgJj4gL2Rldi9udWxsOyB0aGVuCiAgICBkbmYgaW5zdGFsbCAteSBweXRob24zCmZpCgojIyMjIwoKc3lzdGVtY3RsIGVuYWJsZSAtLW5vdyBzc2hkCmZpcmV3YWxsLWNtZCAtcGVybWFuZW50IC0tYWRkLXNlcnZpY2U9c3NoCmZpcmV3YWxsLWNtZCAtLXJlbG9hZAo="
   }	
 
@@ -118,4 +118,12 @@ resource "oci_core_instance" "generated_oci_core_instance" {
 		source_id = "ocid1.image.oc1.us-chicago-1.aaaaaaaafzzghkretxzpc3taybrtbakmgzbrxsiggcrjictbxr7zgjwjxd6a"
 		source_type = "image"
 	}
+}
+
+  resource "local_file" "ansible_inventory" {
+        content = templatefile("${path.module}/hosts.tpl", {
+          instance_ip = oci_core_instance.generated_oci_core_instance.public_ip
+        })
+
+    filename = "/home/github/ansible/hosts"
 }

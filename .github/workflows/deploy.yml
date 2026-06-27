@@ -16,6 +16,16 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
+      - name: Verify Python Environment
+        run: |
+          python3 -m pip install --upgrade pip
+          pip install ruff
+
+      - name: Linting
+        run: |
+          ruff check .
+          ruff format --check
+
       - name: Deploy App
         run: |
           echo "Stopping old containers..."
@@ -31,3 +41,13 @@ jobs:
             -p 8080:8080 \
             simple-python-app:latest
 
+      - name: Terraform OCI
+        run: |
+          cd /home/github/terraform
+          terraform init
+          terraform apply -auto-approve
+
+      - name: Ansible
+        run: |
+          cd /home/github/ansible
+          ansible-playbook deploy.yml

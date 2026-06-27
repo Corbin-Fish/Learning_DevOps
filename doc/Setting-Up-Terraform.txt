@@ -1,0 +1,16 @@
+Setting up Terraform was actually easy I didnt have permissions issues
+
+the worst of it was setting up the OCI CLI tool but I didnt even end up using it so there really isnt much to write about
+
+only thing I recommend is to be very safe about the project directory location and theSecrets
+
+as well as how you pass the tfvars file through github as I added it into my .gitignore
+
+HCL language isnt too bad as I use bigfix at my day job ive gotten used to the fact using their tool means learning a new language because they build tools to match their paradigms
+
+unfortunately not much of a doc for future me or any learners
+
+install using dnf:
+sudo dnf install -y dnf-plugins-core
+sudo dnf config-manager --add-repo https://rpm.releases.hashicorp.com/RHEL/hashicorp.repo
+sudo dnf install -y terraform

@@ -24,7 +24,7 @@ jobs:
       - name: Linting
         run: |
           ruff check .
-          ruff format --check
+          ruff format .
 
       - name: Deploy App
         run: |

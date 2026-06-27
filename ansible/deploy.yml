@@ -1,11 +1,11 @@
 - name: Configure OCI Instance
   hosts: oci_instances
-  gather_facts: true
+  gather_facts: false
   tasks:
     - name: Wait for connect
       ansible.builtin.wait_for_connection:
         timeout: 300
-        dealy: 5
+        delay: 5
 
     - name: Verify connection and gather baseline info
       ansible.builtin.ping:

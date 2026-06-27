@@ -1,5 +1,4 @@
 import unittest
-from app import SimpleHandler
 
 class TestAppLogic(unittest.TestCase):
     def test_assertion(self):

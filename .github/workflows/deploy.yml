@@ -46,6 +46,9 @@ jobs:
           cd /home/github/terraform
           terraform init
           terraform apply -auto-approve
+      - name: Debug Wait
+        run: |
+          sleep 300
 
       - name: Ansible
         run: |

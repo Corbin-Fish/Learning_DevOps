@@ -10,9 +10,9 @@
     - name: Verify connection and gather baseline info
       ansible.builtin.ping:
 
-    - name: Wait for cloud-init
-      ansible.builtin.command: cloud-init status --wait
-      changed_when: false
+    #- name: Wait for cloud-init
+    #  ansible.builtin.command: cloud-init status --wait
+    #  changed_when: false
 
     - name: Update all system packages
       ansible.builtin.dnf:
